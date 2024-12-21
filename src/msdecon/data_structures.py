@@ -6,6 +6,8 @@ import dataclasses
 from typing import List, Tuple, Optional
 
 NEUTRON_MASS = 1.00866491578
+PROTON_MASS = 1.007276466812
+
 
 @dataclasses.dataclass
 class Peak:
@@ -15,6 +17,7 @@ class Peak:
     """
     mz: float
     intensity: float
+    index: Optional[int] = None
 
 
 @dataclasses.dataclass
@@ -34,21 +37,66 @@ class DeconvolutedPeak:
     Represents the result of deconvolution on an isotopic envelope,
     capturing the monoisotopic peak, the largest peak, and overall info.
     """
-    monoisotopic_peak: Optional[Peak]
-    largest_peak: Peak
-    total_intensity: float
+    peaks: List[Peak]
     charge: Optional[int]
-    mz_window: Tuple[float, float]
-    peaks: List[int]  # Indices of peaks contributing to this envelope
 
     @property
-    def neutral_mass(self) -> Optional[float]:
+    def base_peak(self) -> Peak:
+        """
+        Returns the monoisotopic peak from the list of peaks.
+        """
+        return self.peaks[0]
+
+    @property
+    def largest_peak(self) -> Peak:
+        """
+        Returns the largest peak from the list of peaks.
+        """
+        return max(self.peaks, key=lambda x: x.intensity)
+
+    @property
+    def mz_window(self) -> Tuple[float, float]:
+        """
+        Returns the m/z window of the isotopic envelope.
+        """
+        return self.peaks[0].mz, self.peaks[-1].mz
+
+    @property
+    def intensity_window(self) -> Tuple[float, float]:
+        """
+        Returns the intensity window of the isotopic envelope.
+        """
+        return self.peaks[0].intensity, self.peaks[-1].intensity
+
+    @property
+    def total_intensity(self) -> float:
+        """
+        Returns the total intensity of the isotopic envelope.
+        """
+        return sum(p.intensity for p in self.peaks)
+
+    @property
+    def num_peaks(self) -> int:
+        """
+        Returns the number of peaks in the isotopic envelope.
+        """
+        return len(self.peaks)
+
+    def base_peak_neutral_mass(self, charge_carrier: float = PROTON_MASS) -> Optional[float]:
         """
         Returns the neutral (uncharged) mass if charge is known.
         """
-        if self.charge is None or self.monoisotopic_peak is None:
+        if self.charge is None or self.base_peak.mz is None:
             return None
-        return self.monoisotopic_peak.mz * self.charge - self.charge * 1.007276466812
+        return self.base_peak.mz * self.charge - self.charge * charge_carrier
+
+    def largest_peak_neutral_mass(self, charge_carrier: float = PROTON_MASS) -> Optional[float]:
+        """
+        Returns the neutral (uncharged) mass if charge is known.
+        """
+        if self.charge is None or self.largest_peak.mz is None:
+            return None
+        return self.largest_peak.mz * self.charge - self.charge * charge_carrier
 
 
 class GraphNode:
@@ -56,6 +104,7 @@ class GraphNode:
     Node wrapper for rustworkx PyGraph nodes, tagging each node with
     the original peak data and an index.
     """
+
     def __init__(self, value: Peak):
         self.index = None
         self.value: Peak = value
@@ -69,6 +118,7 @@ class GraphEdge:
     """
     Edge wrapper for rustworkx PyGraph edges, carrying isotope gap info.
     """
+
     def __init__(self, value: IsotopeGap):
         self.index = None
         self.value: IsotopeGap = value

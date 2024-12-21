@@ -4,7 +4,8 @@ Graph construction and subgraph separation utilities.
 
 import rustworkx as rx
 from typing import List, Tuple, Literal, Dict
-from .data_structures import Peak, IsotopeGap, GraphNode, GraphEdge, NEUTRON_MASS
+from .data_structures import Peak, GraphNode, GraphEdge, NEUTRON_MASS
+
 
 def get_tolerance(mz: float, tolerance: float, tolerance_type: Literal['ppm', 'da']) -> float:
     """
@@ -16,18 +17,19 @@ def get_tolerance(mz: float, tolerance: float, tolerance_type: Literal['ppm', 'd
     elif tolerance_type == 'da':
         return tolerance
 
+
 def construct_graph(
-    peaks: List[Tuple[float, float]],
-    tolerance: float,
-    tolerance_type: Literal['ppm', 'da'],
-    charge_range: Tuple[int, int]
+        peaks: List[Tuple[float, float]],
+        tolerance: float,
+        tolerance_type: Literal['ppm', 'da'],
+        charge_range: Tuple[int, int]
 ) -> rx.PyGraph:
     """
     Constructs a rustworkx PyGraph from a list of (mz, intensity) peaks,
     adding edges between peaks if they fall within the expected isotope spacing.
     """
     graph = rx.PyGraph()
-    graph.add_nodes_from([GraphNode(Peak(mz=mz, intensity=intensity)) for (mz, intensity) in peaks])
+    graph.add_nodes_from([GraphNode(Peak(mz=mz, intensity=intensity, index=i)) for i, (mz, intensity) in enumerate(peaks)])
 
     for index in graph.node_indices():
         # Assign node indices for easy reference
