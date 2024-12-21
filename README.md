@@ -1,17 +1,48 @@
-# msdecon
+# MsDecon
 
 **msdecon** is a Python package for performing simple isotopic deconvolution. It uses a graph-based approach 
-to identify and group peaks belonging to the same isotopic distribution. It doesn't use any isotope distribution
-scoring, rather it uses very simple logic when assigning isotopic distribution.
+to identify and group peaks belonging to the same isotopic distribution. 
 
-## Algorithm
+## **Algorithm Overview**  
 
-- Start with the most abunant peak in the spectra.
-- look left (lower m/z) and right (higher m/z) for the next peak in the isotopic distribution which is +/- a valid 
-isotope offset (Neutron / charge), ~1 for +1, and ~0.5 for +2...
-- Isotope distributions Must be sequential (no skipping peaks) and best be monotonically decreasing in intensity.
-- Additionally to monotonically decreasing intensity, the intensity of the next peak should also be less than a certain 
-scale factor of the previous peak (0.6 for left and 0.8 for right).
+The deconvolution algorithm in MsDecon identifies isotopic envelopes by constructing a graph representation of mass spectra and tracing isotopic patterns to detect monoisotopic peaks and assign charge states.  
+
+### **Step 1: Graph Construction**  
+- **Nodes**: Each peak in the mass spectrum (m/z and intensity) is represented as a node.    
+- **Edges**: Edges are created between peaks if the mass difference matches the expected neutron mass shift divided by the charge state:  
+  \[
+  \Delta m = \frac{1.00866491578}{\text{Charge}}
+  \]  
+  This is repeated for all charge states within the specified range. Only peaks that fall within the defined tolerance (ppm or Da) are connected.
+
+---
+
+### **Step 2: Greedy Peak Selection**  
+- The most intense peak is selected first. This peak serves as the starting point for identifying isotopic envelopes.  
+- Peaks that have already been assigned to an envelope are skipped in subsequent iterations.  
+
+---
+
+### **Step 3: Isotopic Envelope Tracing**  
+- For each charge state, the graph is traversed:  
+  - **Leftward Search** (lower m/z) – Finds earlier isotopic peaks.  
+  - **Rightward Search** (higher m/z) – Extends the envelope to higher m/z peaks.  
+
+- Peaks must not decrease in intensity by more than a specified factor when moving left or right. By default,
+this factor is 0.6 for leftward search and 0.9 for rightward search (since Isotopic distribution of lower mass 
+analytes can have large drops in intensity between the monoisotopic peak and the first isotopic peak).
+
+---
+
+### **Step 4: Charge State Selection**  
+- The process is repeated for each charge state in the specified range.  
+- The charge state that results in the highest total envelope intensity is selected as the best match.  
+
+---
+
+### **Step 5: Output**  
+- Peaks are grouped into isotopic envelopes, and monoisotopic peaks are identified.  
+- The process continues until all peaks are processed or assigned to envelopes.
 
 ## Installation
 
