@@ -98,6 +98,41 @@ class DeconvolutedPeak:
             return None
         return self.largest_peak.mz * self.charge - self.charge * charge_carrier
 
+    @property
+    def isotope_gaps_mz(self) -> List[float]:
+        """
+        Returns a list of IsotopeGap objects between peaks.
+        """
+        gaps = []
+        for i in range(1, len(self.peaks)):
+            gap = self.peaks[i].mz - self.peaks[i - 1].mz
+            gaps.append(gap)
+
+        return gaps
+
+    @property
+    def isotope_gaps_neutral_mass(self) -> List[float]:
+        """
+        Returns a list of IsotopeGap objects between peaks.
+        """
+        isotope_gaps = self.isotope_gaps_mz
+        gaps = []
+        for gap in isotope_gaps:
+            gaps.append(gap * self.charge)
+
+        return gaps
+
+    @property
+    def isotope_gaps_ppm_error(self) -> List[float]:
+        """
+        Returns a list of ppm errors associated with isotope gaps.
+        """
+        gap_errors = []
+        for i in range(1, len(self.peaks)):
+            gap_errors.append((self.peaks[i - 1].mz + (NEUTRON_MASS / self.charge) - self.peaks[i].mz) / self.peaks[i].mz * 1e6)
+
+        return gap_errors
+
 
 class GraphNode:
     """

@@ -23,71 +23,63 @@ st.set_page_config(
     }
 )
 
-st.title('Deconvolute Mass Spectra :bar_chart:')
+with st.sidebar:
+    st.title('Deconvolute Mass Spectra :bar_chart:')
 
-st.caption("""
-**MsDecon** deconvolutes mass spectra by identifying the base peak of an isotopic distribution and assigning charge states. 
-Paste your centroided spectra, adjust the settings, and visualize the results. Source code: https://github.com/pgarrett-scripps/MsDecon
-
-#### Interactive Plot:  
-- You can **Zoom**, **Pan**, and **Hover** over peaks for more information. **Double-click** on the plot to reset the view.    
-- The legend is also interactive: **Double-click** on a category to isolate it. **Single-Click** on a category to hide/show it.  
-
-""")
-
-st.header('Spectrum Input & Settings', divider='grey')
-
-c1, c2 = st.columns(2)
-
-# read default spectra 'default_spectra.txt'
-default_spectra = open('default_spectra.txt', 'r').read()
-
-# mz intensity\n
-spectra = c1.text_area('Paste spectra here', default_spectra, height=125,
-                       help='Paste the spectra in MS2 format: mz intensity\n')
+    st.caption("""
+    **MsDecon** deconvolutes mass spectra by identifying the base peak of an isotopic distribution and assigning charge states. 
+    Paste your centroided spectra, adjust the settings, and visualize the results. Source code: https://github.com/pgarrett-scripps/MsDecon
+    """)
 
 
-tolerance_type = c2.selectbox('Tolerance type', ['ppm', 'da'], index=0,
-                              help='The type of tolerance to use for deconvolution')
 
-if tolerance_type == 'ppm':
-    deconvolute_tolerance = c2.number_input('Tolerance (ppm)', value=50, step=1,
-                                           help='The tolerance to apply when assigning isotopic peaks')
-else:
-    deconvolute_tolerance = c2.number_input('Tolerance (da)', value=0.005, step=0.001,
-                                        help='The tolerance to apply when assigning isotopic peaks')
+    # read default spectra 'default_spectra.txt'
+    default_spectra = open('default_spectra.txt', 'r').read()
 
-min_charge, max_charge = st.slider('Charge range', 1, 10, (1, 2),
-                                   help='The min and max charge to consider for deconvolution.')
+    # mz intensity\n
+    spectra = st.text_area('Paste spectra here', default_spectra, height=125,
+                           help='Paste the spectra in MS2 format: mz intensity\n')
 
-with st.expander('Advanced Options'):
-    st.caption("Advanced deconvolution settings. The 'Min Intensity' filter is applied before deconvolution to exclude"
-               " low-intensity peaks. The 'Min Left/Right Intensity Decrease' controls how the algorithm traces "
-               "isotopic envelopes, starting from the most intense peak. Generally, peak intensities decrease "
-               "gradually to the left (toward lower m/z), while larger drops are expected to the right ("
-               "toward higher m/z).")
     c1, c2 = st.columns(2)
-    max_left_intensity_decrease = c1.number_input('Max intensity decrease (Left)', value=0.65,
-                                                  help='Maximum intensity decrease when navigating left (lower m/z)')
-    max_right_intensity_decrease = c2.number_input('Max intensity decrease (Right)', value=0.95,
-                                                   help='Maximum intensity decrease when navigating right (higher m/z)')
-    min_intensity = st.number_input('Min intensity', value=0)
-    charge_carrier = st.number_input('Charge carrier mass', value=1.007276, step=0.000001,
-                                     help='The mass of the charge carrier (e.g., proton for ESI-MS)')
+
+    tolerance_type = c1.selectbox('Tolerance type', ['ppm', 'da'], index=0,
+                                  help='The type of tolerance to use for deconvolution')
+
+    if tolerance_type == 'ppm':
+        deconvolute_tolerance = c2.number_input('Tolerance (ppm)', value=50, step=1,
+                                               help='The tolerance to apply when assigning isotopic peaks')
+    else:
+        deconvolute_tolerance = c2.number_input('Tolerance (da)', value=0.005, step=0.001,
+                                            help='The tolerance to apply when assigning isotopic peaks')
+
+    min_charge, max_charge = st.slider('Charge range', 1, 10, (1, 2),
+                                       help='The min and max charge to consider for deconvolution.')
+
+    with st.expander('Advanced Options'):
+        st.caption("Advanced deconvolution settings. The 'Min Intensity' filter is applied before deconvolution to exclude"
+                   " low-intensity peaks. The 'Min Left/Right Intensity Decrease' controls how the algorithm traces "
+                   "isotopic envelopes, starting from the most intense peak. Generally, peak intensities decrease "
+                   "gradually to the left (toward lower m/z), while larger drops are expected to the right ("
+                   "toward higher m/z).")
+        c1, c2 = st.columns(2)
+        max_left_intensity_decrease = c1.number_input('Max intensity decrease (Left)', value=0.65,
+                                                      help='Maximum intensity decrease when navigating left (lower m/z)')
+        max_right_intensity_decrease = c2.number_input('Max intensity decrease (Right)', value=0.95,
+                                                       help='Maximum intensity decrease when navigating right (higher m/z)')
+        min_intensity = c1.number_input('Min intensity', value=0)
+        charge_carrier = c2.number_input('Charge carrier mass', value=1.007276, step=None, format="%0.6f",
+                                         help='The mass of the charge carrier (e.g., proton for ESI-MS)')
+
+        show_gap_statistic = st.checkbox('Show Isotope Gap Statistics', value=False,
+                                         help='Display a histogram of the isotope gaps between peaks in the deconvoluted spectrum')
 
 
-if tolerance_type == 'ppm':
-    # sure it is less than 100 ppm
-    if deconvolute_tolerance > 100:
-        st.warning('Tolerance is greater than 100 ppm')
-        st.stop()
-
-if tolerance_type == 'da':
-    # sure it is less than 0.1
-    if deconvolute_tolerance > 0.1:
-        st.warning('Tolerance is greater than 0.1 Da')
-        st.stop()
-#deconvolute_min_intensity = st.number_input('Deconvolution min intensity', value=0.1)
+    st.caption("""    
+    #### Interactive Plot:  
+    - You can **Zoom**, **Pan**, and **Hover** over peaks for more information. **Double-click** on the plot to reset the view.    
+    - The legend is also interactive: **Double-click** on a category to isolate it. **Single-Click** on a category to hide/show it.  
+    """)
+    #deconvolute_min_intensity = st.number_input('Deconvolution min intensity', value=0.1)
 
 # Validate and parse input
 lines = [line.strip() for line in spectra.split('\n') if line.strip()]
@@ -141,6 +133,9 @@ peaks_df['charge'] = [peak.charge for peak in dpeaks]
 peaks_df['num_peaks'] = [peak.num_peaks for peak in dpeaks]
 peaks_df['peak_mzs'] = [';'.join([f'{p.mz:.4f}' for p in peak.peaks]) for peak in dpeaks]
 peaks_df['peak_intensities'] = [';'.join([f'{p.intensity:.1f}' for p in peak.peaks]) for peak in dpeaks]
+peaks_df['gap_ppm_errors'] = [';'.join([f'{gap:.2f}' for gap in peak.isotope_gaps_ppm_error]) for peak in dpeaks]
+
+
 
 
 # Handle missing charges by filling with 0 or a placeholder value
@@ -198,6 +193,7 @@ for charge in unique_charges:
     ))
 
 fig.update_layout(
+    title='Deconvoluted Spectrum',
     width=800,
     height=450,
     legend=dict(
@@ -212,7 +208,7 @@ fig.update_layout(
 
 # show peaks in original spectrum (count) and then in the deconvoluted spectrum
 
-st.header('Deconvoluted Spectrum & Table', divider='grey')
+st.subheader('Deconvolution Results', divider=True)
 
 c1, c2, c3 = st.columns(3)
 c1.metric('Original Peaks', len(peaks),
@@ -242,6 +238,13 @@ def display():
     # set 0 chareg state to None:
     peaks_df_filtered['charge'] = peaks_df_filtered['charge'].replace(0, None)
 
+    all_gap_errors = []
+    for errors in peaks_df_filtered['gap_ppm_errors']:
+        if errors:
+            all_gap_errors.extend([float(error) for error in errors.split(';')])
+
+
+
     st.dataframe(peaks_df_filtered, use_container_width=True, hide_index=True)
 
     # download table
@@ -253,6 +256,26 @@ def display():
         use_container_width=True,
         type='primary'
     )
+
+    # plot histogram of isotope gaps
+    if show_gap_statistic:
+
+        st.subheader('Isotope Gap Statistics', divider=True)
+        # write a metric for eman, median and std of the gap errors
+        c1, c2, c3 = st.columns(3)
+        c1.metric('Mean Gap Error', f"{np.mean(all_gap_errors):.2f} ppm")
+        c2.metric('Median Gap Error', f"{np.median(all_gap_errors):.2f} ppm")
+        c3.metric('Std. Dev. Gap Error', f"{np.std(all_gap_errors):.2f} ppm")
+
+        fig_hist = go.Figure()
+        fig_hist.add_trace(go.Histogram(
+            x=all_gap_errors,
+            nbinsx=50,
+            marker_color='blue',
+            opacity=0.75
+        ))
+
+        st.plotly_chart(fig_hist)
 
 
 display()
