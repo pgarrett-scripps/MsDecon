@@ -27,7 +27,7 @@ st.title('Deconvolute Mass Spectra :bar_chart:')
 
 st.caption("""
 **MsDecon** deconvolutes mass spectra by identifying the base peak of an isotopic distribution and assigning charge states. 
-Paste your centroided spectra, adjust the settings, and visualize the results.  
+Paste your centroided spectra, adjust the settings, and visualize the results. Source code: https://github.com/pgarrett-scripps/MsDecon
 
 #### Interactive Plot:  
 - You can **Zoom**, **Pan**, and **Hover** over peaks for more information. **Double-click** on the plot to reset the view.    

@@ -64,7 +64,9 @@ for r in results:
 
 ## Streamlit app
 
-Hosted on Streamlit Cloud: [msdecon](UPDATE LINK)
+### Hosted on Streamlit Cloud (Try Me): [msdecon](https://msdecon.streamlit.app/)
+
+![Deconvolution Example](example.gif)
 
 This repo also contains the source code for a streamlit app which can be used to visualize the 
 deconvolution results. To run the app, use the following command:
