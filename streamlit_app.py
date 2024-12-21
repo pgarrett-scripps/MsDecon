@@ -23,7 +23,7 @@ st.set_page_config(
     }
 )
 
-st.title('Deconvolute Mass Sepctra :bar_chart:')
+st.title('Deconvolute Mass Spectra :bar_chart:')
 
 st.caption("""
 **MsDecon** deconvolutes mass spectra by identifying the base peak of an isotopic distribution and assigning charge states. 
