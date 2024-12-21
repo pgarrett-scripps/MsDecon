@@ -1,24 +1,23 @@
 # msdecon
 
-**msdecon** is a Python package for performing simple isotopic envelope deconvolution in mass spectrometry data. It uses a graph-based approach to identify and group peaks belonging to the same isotopic distribution. By mapping peaks and their relationships into a graph, and then navigating through that graph, **msdecon** helps you automatically find monoisotopic peaks, estimate charge states, and retrieve isotopic clusters.
+**msdecon** is a Python package for performing simple isotopic deconvolution. It uses a graph-based approach 
+to identify and group peaks belonging to the same isotopic distribution. It doesn't use any isotope distribution
+scoring, rather it uses very simple logic when assigning isotopic distribution.
 
-## Features
+## Algorithm
 
-- **Graph Construction**: Builds a graph of peaks connected by isotope spacing.
-- **Charge State Filtering**: Supports user-defined charge ranges to focus on relevant isotopes.
-- **Automated Traversal**: Navigates through the graph to find isotopic envelopes.
-- **Flexible Tolerances**: Choose between ppm or Da tolerances for peak matching.
-- **Returns Detailed Results**: Provides monoisotopic peaks, charge states, total envelope intensity, and more.
+- Start with the most abunant peak in the spectra.
+- look left (lower m/z) and right (higher m/z) for the next peak in the isotopic distribution which is +/- a valid 
+isotope offset (Neutron / charge), ~1 for +1, and ~0.5 for +2...
+- Isotope distributions Must be sequential (no skipping peaks) and best be monotonically decreasing in intensity.
+- Additionally to monotonically decreasing intensity, the intensity of the next peak should also be less than a certain 
+scale factor of the previous peak (0.6 for left and 0.8 for right).
 
 ## Installation
-
-You can install **msdecon** from source or integrate it into your existing Python environment. For example:
 
 ```bash
 pip install .
 ```
-
-(Ensure you are in the directory with `setup.py` or `pyproject.toml`.)
 
 ## Usage
 
@@ -63,10 +62,14 @@ for r in results:
 - [rustworkx](https://github.com/Qiskit/rustworkx) for efficient graph operations
 - Python 3.8+ (recommended)
 
-## Contributing
+## Streamlit app
 
-Pull requests and issues are welcome! Before contributing, please ensure you follow best practices in code formatting and provide tests or examples as needed.
+Hosted on Streamlit Cloud: [msdecon](UPDATE LINK)
 
-## License
+This repo also contains the source code for a streamlit app which can be used to visualize the 
+deconvolution results. To run the app, use the following command:
 
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+```bash
+pip install requirements.txt
+streamlit run streamlit_app.py
+```
