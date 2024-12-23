@@ -4,9 +4,9 @@ methods to identify isotopic envelopes among the provided peaks.
 """
 
 from typing import List, Tuple, Literal
-from .graph_ops import construct_graph, separate_graphs
+from .graph_ops import construct_graph
 from .navigation import navigate_left, navigate_right
-from .data_structures import DeconvolutedPeak, Peak
+from .data_structures import DeconvolutedPeak
 
 
 def deconvolute(
@@ -55,15 +55,6 @@ def deconvolute(
             left_peaks = navigate_left(graph, peak_idx, charge, max_left_decrease)
             right_peaks = navigate_right(graph, peak_idx, charge, max_right_decrease)
             peaks_in_profile = sorted(set(left_peaks + right_peaks))
-
-            mono_peak = Peak(
-                mz=graph[peaks_in_profile[0]].value.mz,
-                intensity=graph[peaks_in_profile[0]].value.intensity
-            )
-            largest_peak = Peak(
-                graph[peak_idx].value.mz,
-                graph[peak_idx].value.intensity
-            )
 
             decon_peak = DeconvolutedPeak(
                 peaks=[graph[p].value for p in peaks_in_profile],

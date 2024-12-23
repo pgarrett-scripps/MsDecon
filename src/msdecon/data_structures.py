@@ -129,7 +129,8 @@ class DeconvolutedPeak:
         """
         gap_errors = []
         for i in range(1, len(self.peaks)):
-            gap_errors.append((self.peaks[i - 1].mz + (NEUTRON_MASS / self.charge) - self.peaks[i].mz) / self.peaks[i].mz * 1e6)
+            gap_errors.append((self.peaks[i - 1].mz + (NEUTRON_MASS / self.charge) - self.peaks[i].mz) /
+                              self.peaks[i].mz * 1e6)
 
         return gap_errors
 

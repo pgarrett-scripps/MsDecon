@@ -29,7 +29,8 @@ def construct_graph(
     adding edges between peaks if they fall within the expected isotope spacing.
     """
     graph = rx.PyGraph()
-    graph.add_nodes_from([GraphNode(Peak(mz=mz, intensity=intensity, index=i)) for i, (mz, intensity) in enumerate(peaks)])
+    graph.add_nodes_from([GraphNode(Peak(mz=mz, intensity=intensity, index=i)) for i, (mz, intensity)
+                          in enumerate(peaks)])
 
     for index in graph.node_indices():
         # Assign node indices for easy reference
@@ -79,28 +80,3 @@ def construct_graph(
         data[2].index = index
 
     return graph
-
-
-def separate_graphs(graph: rx.PyGraph, charge_range: Tuple[int, int]) -> Dict[int, rx.PyGraph]:
-    """
-    Creates subgraphs for each integer charge in the specified range.
-    Edges and nodes are filtered to those matching the given charge.
-    """
-    offset_subgraphs = {}
-    for charge in range(charge_range[0], charge_range[1] + 1):
-        subgraph = rx.PyGraph()
-        node_map = {}  # Maps original nodes to new subgraph nodes
-
-        for (u, v) in graph.edge_list():
-            edge_data = graph.get_edge_data(u, v)
-            # If the edge matches our current charge, bring it into the subgraph
-            if edge_data.value.charge == charge:
-                if u not in node_map:
-                    node_map[u] = subgraph.add_node(graph[u])
-                if v not in node_map:
-                    node_map[v] = subgraph.add_node(graph[v])
-                subgraph.add_edge(node_map[u], node_map[v], edge_data)
-
-        offset_subgraphs[charge] = subgraph
-
-    return offset_subgraphs
