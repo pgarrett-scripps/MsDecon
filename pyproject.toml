@@ -6,11 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "msdecon"
 version = "0.1.0"
 authors = [
-  { name = "Your Name", email = "your.email@example.com" }
+  { name = "Patrick", email = "pgarrett@scripps.edu" }
 ]
 description = "A python package for isotopic envelope deconvolution in MS data."
 readme = "README.md"
-license = "MIT"
 keywords = ["mass spectrometry", "isotope", "deconvolution"]
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -19,15 +18,8 @@ classifiers = [
 ]
 python-requires = ">=3.8"
 dependencies = [
-  "rustworkx>=0.11.0"
+  "rustworkx>=0.15.2"
 ]
 
-[project.urls]
-"Source" = "https://github.com/your_username/msdecon"
-"Documentation" = "https://github.com/your_username/msdecon#readme"
-
 [tool.setuptools]
-packages = ["msdecon"]
-
-[tool.setuptools.packages.find]
-where = ["src"]
+package-dir = {"" = "src"}

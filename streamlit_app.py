@@ -158,10 +158,10 @@ norm = mcolors.Normalize(vmin=min(unique_charges), vmax=max(unique_charges))
 colormap = plt.get_cmap('viridis')  # Choose a colormap ('viridis', 'plasma', etc.)
 
 # Assign a distinct color for None or 0 (unassigned charges)
-special_color = '#B0B0B0'  # Light gray for None/NaN charges
+special_color = '#efc7a0'  # Light gray for None/NaN charges
 
 # Generate colors for each charge state
-charge_colors = {charge: mcolors.rgb2hex(colormap(norm(charge))) for charge in unique_charges if charge != 0}
+charge_colors = {charge: mcolors.rgb2hex(colormap(norm(charge))) for charge in unique_charges}
 charge_colors[0] = special_color  # Explicitly assign color for charge = 0 (was None)
 
 # Map colors to charge states
